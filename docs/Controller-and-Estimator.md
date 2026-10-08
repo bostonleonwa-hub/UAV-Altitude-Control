@@ -55,9 +55,19 @@ $$
 At $T_s=0.01\ \mathrm{s}$:
 
 $$
-A=\begin{bmatrix}1&0.01\\0&1\end{bmatrix},\qquad
-B=\begin{bmatrix}0.00005\\0.01\end{bmatrix},\qquad
-C=\begin{bmatrix}1&0\end{bmatrix}
+A = \begin{bmatrix}
+1 & 0.01 \\
+0 & 1
+\end{bmatrix},
+\qquad
+B = \begin{bmatrix}
+0.00005 \\
+0.01
+\end{bmatrix},
+\qquad
+C = \begin{bmatrix}
+1 & 0
+\end{bmatrix}
 $$
 
 The known model input is commanded thrust correction converted to acceleration:
