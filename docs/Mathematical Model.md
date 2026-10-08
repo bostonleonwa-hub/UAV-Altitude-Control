@@ -44,9 +44,11 @@ $$
 
 The actuator limits applied thrust:
 
+
 $$
-T = \operatorname{sat}(T_{\mathrm{cmd}}, 0, 30)
+T = \mathrm{sat}(T_{\mathrm{cmd}}, 0, 30)
 $$
+  
 
 For a constant downward disturbance of $F_w=-3\ \mathrm{N}$, stationary hover requires:
 
