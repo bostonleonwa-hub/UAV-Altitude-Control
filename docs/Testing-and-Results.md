@@ -17,21 +17,21 @@ The Simulink model was evaluated over a 30-second simulation.
 
 The UAV tracks the 10 m command, initially overshooting to approximately 11.1 m before gradually settling toward the target. Estimated altitude closely follows true altitude in the recorded simulation.
 
-![Altitude tracking](../screenshots/altitude-tracking.png)
+![Altitude tracking](../Figures/Results/altitude-tracking.png)
 
 ## Sensor filtering and state estimation
 
 The noisy altitude measurement fluctuates around true altitude. The low-pass filter and Kalman estimator provide smoother altitude signals, and the Kalman estimator also estimates vertical velocity.
 
-![Sensor and estimator comparison](../screenshots/sensor-comparison.png)
+![Sensor and estimator comparison](../Figures/Results/sensor-estimator-comparison.png)
 
-![Velocity estimation](../screenshots/velocity-estimation.png)
+![Velocity estimation](../Figures/Results/velocity-estimation.png)
 
 ## Wind disturbance rejection
 
 A −3 N vertical disturbance is applied from 10 to 15 seconds. The controller raises thrust to compensate and returns toward nominal hover thrust after the disturbance ends. Altitude remains close to the target, though transient deviations occur.
 
-![Thrust and wind disturbance](../screenshots/thrust-and-wind.png)
+![Thrust and wind disturbance](../Figures/Results/thrust-wind-disturbance.png)
 
 ## Observations
 
