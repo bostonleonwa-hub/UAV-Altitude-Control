@@ -1,4 +1,4 @@
-[README.md](https://github.com/user-attachments/files/33188024/README.md)[Uploading README.md…]# UAV Altitude Control and State Estimation
+UAV Altitude Control and State Estimation
 
 **MATLAB/Simulink | PID Control | Kalman Filtering | State-Space Modeling | UAV Dynamics**
 
