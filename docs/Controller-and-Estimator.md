@@ -39,7 +39,10 @@ The Kalman estimator receives the raw noisy altitude measurement separately from
 The state consists of altitude and vertical velocity:
 
 $$
-x_k=\begin{bmatrix}z_k\\v_k\end{bmatrix}
+x_k = \begin{bmatrix}
+z_k \\
+v_k
+\end{bmatrix}
 $$
 
 The discrete state-space model is:
