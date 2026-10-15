@@ -1,88 +1,76 @@
 # PID Controller and Kalman State Estimator
 
+## Closed-loop architecture
+
+The feedback altitude used by the PID controller is the **Kalman-estimated altitude**, not the raw noisy altitude measurement. The filter also estimates vertical velocity, but the PID uses only the estimated altitude component.
+
 ## PID altitude controller
 
-The controller uses the error between commanded altitude and feedback altitude:
+The tracking error is
 
 $$
-e(t) = z_{\mathrm{ref}}(t)-z_{\mathrm{fb}}(t)
+e(t)=z_{\mathrm{ref}}(t)-\hat z(t).
 $$
 
-The continuous-time PID controller includes a filtered derivative term:
+The continuous-time parallel PID controller uses a filtered derivative term:
 
 $$
-U_{\mathrm{PID}}(s)=\left(K_p+\frac{K_i}{s}+K_d\frac{Ns}{s+N}\right)E(s)
+U_{\mathrm{PID}}(s)=\left(K_p+\frac{K_i}{s}+K_d\frac{Ns}{s+N}\right)E(s).
 $$
 
-| Parameter | Value |
-|---|---|
-| Proportional gain, $K_p$ | 34.19 |
-| Integral gain, $K_i$ | 4.39 |
-| Derivative gain, $K_d$ | 24.42 |
-| Derivative filter coefficient, $N$ | 10 |
-| Anti-windup | Back-calculation |
+| Parameter | Final setting |
+|---|---:|
+| Proportional gain, $K_p$ | 46.5 |
+| Integral gain, $K_i$ | 4.38969736985132 |
+| Derivative gain, $K_d$ | 27 |
+| Derivative filter coefficient, $N$ | 6.5 |
+| Anti-windup | Clamping |
+| PID correction bounds | −14.715 to +15.285 N |
+| Applied thrust bounds | 0 to 30 N |
 
-Derivative filtering reduces noise-driven thrust fluctuations. Anti-windup mitigates integrator buildup when commanded thrust reaches actuator limits.
+Hover-thrust feedforward ($mg=14.715$ N) is added to the PID correction before actuator saturation. Clamping anti-windup prevents continued integrator buildup while the correction saturates in the direction of error.
 
-## Sensor and low-pass filter
+## Altitude measurement
 
-The simulated altitude sensor adds zero-mean measurement noise with a standard deviation of 0.02 m, sampled at 100 Hz. A first-order low-pass filter provides smoothed altitude feedback:
-
-$$
-H(s)=\frac{1}{0.02s+1}
-$$
-
-The Kalman estimator receives the raw noisy altitude measurement separately from the low-pass-filtered signal.
-
-## Discrete Kalman state estimator
-
-The state consists of altitude and vertical velocity:
+The simulated sensor adds zero-mean noise with standard deviation $\sigma_z=0.02$ m at a 0.01 s sampling interval. Its measurement variance is
 
 $$
-x_k = \begin{bmatrix}
-z_k \\
-v_k
-\end{bmatrix}
+R=\sigma_z^2=(0.02)^2=0.0004\ \mathrm{m}^2.
 $$
 
-The discrete state-space model is:
+The final validation uses a fixed seed (`12345`) in the Simulink Random Number block. A previously documented low-pass filter is not the PID feedback source in the validated configuration; **estimated altitude from the Kalman filter is the feedback signal**.
+
+## Discrete two-state Kalman estimator
+
+The estimated state is
 
 $$
-x_{k+1}=Ax_k+Bu_k+w_k
+x_k=\begin{bmatrix}z_k\\v_{z,k}\end{bmatrix}.
 $$
 
-$$
-y_k=Cx_k+v_k^{\mathrm{noise}}
-$$
-
-At $T_s=0.01\ \mathrm{s}$:
+The simplified constant-acceleration discrete model is
 
 $$
-A = \begin{bmatrix}
-1 & 0.01 \\
-0 & 1
-\end{bmatrix},
-\qquad
-B = \begin{bmatrix}
-0.00005 \\
-0.01
-\end{bmatrix},
-\qquad
-C = \begin{bmatrix}
-1 & 0
-\end{bmatrix}
+x_{k+1}=Ax_k+Bu_k+w_k,\qquad y_k=Cx_k+\nu_k,
 $$
 
-The known model input is commanded thrust correction converted to acceleration:
+with $T_s=0.01$ s and
 
 $$
-u_k=\frac{u_{\mathrm{PID}}}{m}
+A=\begin{bmatrix}1&0.01\\0&1\end{bmatrix},\qquad
+B=\begin{bmatrix}0.00005\\0.01\end{bmatrix},\qquad
+C=\begin{bmatrix}1&0\end{bmatrix}.
 $$
 
-The altitude measurement noise variance is:
+Here $u_k$ is modeled vertical acceleration from the known thrust correction, $w_k$ is process-model uncertainty, and $\nu_k$ is measurement noise. The wind force is not directly provided as a known filter input, so estimation error may increase during the disturbance.
 
-$$
-R=(0.02)^2=0.0004\ \mathrm{m}^2
-$$
+## Validated estimation accuracy
 
-The estimator does not directly receive the wind disturbance. Its altitude and velocity estimates can therefore be compared with true simulated states to assess robustness to unmodeled forces.
+| Metric | Result |
+|---|---:|
+| Raw altitude sensor RMSE | 0.019887 m |
+| Kalman altitude RMSE | 0.009352 m |
+| Relative altitude RMSE reduction | 52.97% |
+| Kalman vertical velocity RMSE | 0.111240 m/s |
+
+See [Testing and Results](testing-and-results.md) for the definitions and flight-phase analysis.
