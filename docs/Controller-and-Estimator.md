@@ -44,9 +44,15 @@ The final validation uses a fixed seed (`12345`) in the Simulink Random Number b
 
 The estimated state is
 
+
 $$
-x_k=\begin{bmatrix}z_k\\v_{z,k}\end{bmatrix}.
+x_k =
+\begin{bmatrix}
+z_k \\
+v_{z,k}
+\end{bmatrix}
 $$
+
 
 The simplified constant-acceleration discrete model is
 
@@ -57,9 +63,22 @@ $$
 with $T_s=0.01$ s and
 
 $$
-A=\begin{bmatrix}1&0.01\\0&1\end{bmatrix},\qquad
-B=\begin{bmatrix}0.00005\\0.01\end{bmatrix},\qquad
-C=\begin{bmatrix}1&0\end{bmatrix}.
+A =
+\begin{bmatrix}
+1 & 0.01 \\
+0 & 1
+\end{bmatrix},
+\qquad
+B =
+\begin{bmatrix}
+0.00005 \\
+0.01
+\end{bmatrix},
+\qquad
+C =
+\begin{bmatrix}
+1 & 0
+\end{bmatrix}
 $$
 
 Here $u_k$ is modeled vertical acceleration from the known thrust correction, $w_k$ is process-model uncertainty, and $\nu_k$ is measurement noise. The wind force is not directly provided as a known filter input, so estimation error may increase during the disturbance.
