@@ -54,7 +54,12 @@ The theoretical thrust needed to hold altitude under a steady −3 N downward fo
 Root-mean-square error (RMSE) against true simulated altitude is
 
 $$
-\operatorname{RMSE}=\sqrt{\frac{1}{n}\sum_{i=1}^{n}(\hat z_i-z_i)^2}.
+\mathrm{RMSE} =
+\sqrt{
+\frac{1}{n}
+\sum_{i=1}^{n}
+(\hat{z}_i-z_i)^2
+}
 $$
 
 | Metric | Result |
