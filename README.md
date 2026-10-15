@@ -1,94 +1,93 @@
-UAV Altitude Control and State Estimation
+# UAV Altitude Control and State Estimation
 
-**MATLAB/Simulink | PID Control | Kalman Filtering | State-Space Modeling | UAV Dynamics**
+**MATLAB / Simulink · PID Control · Kalman Filtering · State-Space Modeling**
 
-A closed-loop altitude control simulation for a simplified unmanned aerial vehicle (UAV), developed in MATLAB and Simulink. The project combines PID feedback control, actuator saturation, sensor noise filtering, wind disturbance rejection, and Kalman-based state estimation.
+A one-dimensional UAV simulation integrating **closed-loop PID altitude control**, **actuator saturation and anti-windup**, **noisy altitude sensing**, and a **discrete Kalman filter** that estimates altitude and vertical velocity. The PID uses **Kalman-estimated altitude as its feedback signal**.
 
-The objective is to maintain a commanded altitude while estimating the vehicle's vertical position and velocity under measurement noise and actuator constraints.
+The project evaluates a 10 m altitude step, a −3 N downward disturbance, estimation accuracy, and reproducibility under fixed-seed sensor noise. All results below are **simulation results**, not flight-test measurements.
 
-## Simulation Results
+## Validated results
 
-### Altitude Tracking
+| Metric | Fixed-seed result |
+|---|---:|
+| 2% settling time (relative to command at 1 s) | **2.72 s** |
+| 1% settling time | **7.56 s** |
+| Peak overshoot | **3.93%** |
+| Maximum altitude deviation during wind (20–25 s) | **4.96 cm** |
+| Hover thrust standard deviation (15–20 s) | **2.834 N** |
+| Raw altitude sensor RMSE | **1.989 cm** |
+| Kalman altitude RMSE | **0.935 cm** |
+| Reduction in altitude RMSE | **52.97%** |
+| Kalman vertical velocity RMSE | **0.1112 m/s** |
 
-The UAV follows a 10 m altitude command, reaching approximately 11.1 m at peak overshoot before gradually converging toward the target.
+The final controller was validated over **30 s** with a fixed Random Number block seed. Repeating the same simulation produced identical logged altitude and thrust outputs.
 
-![Altitude Tracking](Figures/Results/01-altitude-tracking.png)
+## Simulation plots
 
-### Sensor Filtering and State Estimation
+### Altitude tracking
 
-A simulated altitude sensor introduces measurement noise with a standard deviation of 0.02 m at 100 Hz. A low-pass filter smooths the feedback signal, while a discrete Kalman filter estimates altitude and vertical velocity.
+![Final altitude tracking](Figures/Results/final-altitude-tracking.png)
 
-![Sensor and Estimator Comparison](Figures/Results/03-sensor-estimator-zoom.png)
+The commanded altitude steps to 10 m at 1 s. The wind disturbance acts from 20–25 s.
 
-![Velocity Estimation](Figures/Results/04-velocity-estimation.png)
+### Disturbance rejection and thrust
 
-### Wind Disturbance Rejection
+![Final thrust response](Figures/Results/final-thrust-response.png)
 
-A downward disturbance of 3 N is applied from 10 to 15 seconds. The controller increases thrust to compensate and returns toward nominal hover thrust after the disturbance ends.
+A 1.5 kg vehicle requires **14.715 N** to hover without wind and **17.715 N** to balance the −3 N disturbance at steady hover. Instantaneous commanded thrust fluctuates due to feedback and measurement noise.
 
-![Wind Disturbance Response](Figures/Results/05-wind-thrust-response.png)
+### Kalman state estimation
 
-## System Architecture
+![Altitude estimation error](Figures/Results/final-kalman-altitude-error.png)
 
-The simulation consists of four primary subsystems:
+The Kalman filter reduced altitude estimation RMSE by **52.97%** relative to the raw noisy altitude measurement over the 30-second simulation.
 
-1. **Altitude Controller:** PID feedback control with derivative filtering and anti-windup.
-2. **Vertical Dynamics:** Newtonian force balance and integration of acceleration into velocity and altitude.
-3. **Altitude Sensor:** Simulated measurement noise and first-order low-pass filtering.
-4. **State Estimator:** Discrete Kalman filter estimating altitude and vertical velocity.
+![Velocity estimation](Figures/Results/final-velocity-estimation.png)
 
-The plant models vertical translation only; it does not include attitude dynamics, aerodynamic drag, or motor response lag.
+Vertical velocity was estimated from the filter's two-state model, with **0.1112 m/s** RMSE against simulated true velocity.
 
-## Technical Specifications
+## Final model configuration
 
 | Parameter | Value |
 |---|---|
 | Vehicle mass | 1.5 kg |
-| Gravitational acceleration | 9.81 m/s² |
-| Nominal hover thrust | 14.715 N |
-| Thrust limits | 0–30 N |
-| Target altitude | 10 m |
-| Wind disturbance | −3 N, from 10–15 s |
-| Sensor noise standard deviation | 0.02 m |
-| Estimator sampling frequency | 100 Hz |
-| Kalman filter states | Altitude and vertical velocity |
-| PID gains (Kp, Ki, Kd) | 34.19, 4.39, 24.42 |
-| PID derivative filter coefficient | 10 |
+| Gravity | 9.81 m/s² |
+| Hover thrust | 14.715 N |
+| Actuator limits | 0–30 N |
+| Altitude target | 10 m, commanded at 1 s |
+| Wind disturbance | −3 N, 20–25 s |
+| Altitude sensor noise | Zero mean, standard deviation 0.02 m |
+| Sensor / Kalman sample time | 0.01 s (100 Hz) |
+| Random Number block seed | 12345 (fixed-noise validation) |
+| PID `Kp`, `Ki`, `Kd` | 46.5, 4.38969736985132, 27 |
+| PID derivative filter coefficient `N` | 6.5 |
+| PID anti-windup | Clamping |
+| PID feedback | Kalman-estimated altitude |
+| Kalman states | Altitude, vertical velocity |
 
-## Engineering Methods
+## Architecture and methods
 
-- Modeled UAV vertical dynamics using Newton's second law.
-- Implemented closed-loop PID altitude control with hover-thrust feedforward.
-- Added actuator saturation and back-calculation anti-windup.
-- Tuned derivative filtering to reduce noise-induced thrust fluctuations.
-- Simulated sensor noise and external force disturbances.
-- Implemented a discrete state-space Kalman estimator.
-- Compared measured, filtered, estimated, and true vehicle states.
+1. **Dynamics:** Model vertical acceleration from thrust, gravity, and external force, then integrate to velocity and altitude.
+2. **Altitude sensor:** Add zero-mean random measurement noise to true altitude.
+3. **State estimator:** Use a discrete Kalman filter to estimate altitude and vertical velocity from noisy altitude observations.
+4. **PID feedback:** Use estimated altitude to calculate thrust correction; combine with hover-thrust feedforward and limit applied thrust to 0–30 N.
+5. **Validation:** Compare controller response, disturbance rejection, estimation RMSE, and fixed-seed repeatability.
+
+**Scope:** This is a simplified vertical-motion model. It does not simulate full six-degree-of-freedom flight, attitude control, aerodynamic drag, motor response lag, or real hardware.
 
 ## Documentation
 
-| Document | Description |
-|---|---|
-| [Mathematical Model](docs/Mathematical%20Model.md) | Force balance, vehicle dynamics, and actuator limits |
-| [PID Controller and Kalman Estimator](docs/Controller-and-Estimator.md) | Control architecture, sensor filtering, and state estimation |
-| [Testing and Results](docs/Testing-and-Results.md) | Simulation plots, disturbance response, and observations |
+- [Mathematical Model](docs/mathematical-model.md) — force balance, hover thrust, actuator limits.
+- [Controller and Estimator](docs/controller-and-estimator.md) — PID and Kalman equations and configuration.
+- [Testing and Results](docs/testing-and-results.md) — measurement definitions, numerical results, and limitations.
 
-## Project Files
+## Repository structure
 
-| Folder | Contents |
-|---|---|
-| `Model/` | Simulink model |
-| `Scripts/` | MATLAB scripts and model initialization |
-| `Figures/Architecture/` | System and subsystem diagrams |
-| `Figures/Development/` | Development and tuning screenshots |
-| `Figures/Results/` | Final simulation plots |
-| `docs/` | Technical documentation |
+- `Model/` — Simulink model
+- `Scripts/` — MATLAB initialization and analysis scripts
+- `Figures/Architecture/` — model architecture images
+- `Figures/Development/` — tuning and development images
+- `Figures/Results/` — final and historical result figures
+- `docs/` — project documentation
 
-## Tools
-
-- MATLAB
-- Simulink
-- Git and GitHub
-
-**Project focus:** Guidance, Navigation, and Control (GNC), feedback control, dynamic system modeling, and state estimation.
-()
+**Project focus:** Guidance, Navigation, and Control (GNC), feedback control, disturbance rejection, and state estimation.
