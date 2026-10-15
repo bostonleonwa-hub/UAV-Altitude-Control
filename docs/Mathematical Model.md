@@ -37,10 +37,15 @@ $$
 
 The PID controller supplies a correction relative to hover thrust:
 
+
 $$
-T_{\mathrm{cmd}}=mg+u_{\mathrm{PID}},\qquad
-T=\operatorname{sat}(T_{\mathrm{cmd}},0,30).
+T_{\mathrm{cmd}} = mg + u_{\mathrm{PID}}
 $$
+
+$$
+T = \mathrm{sat}(T_{\mathrm{cmd}}, 0, 30)
+$$
+
 
 The PID correction is constrained consistently with the thrust actuator, from $-14.715$ to $+15.285$ N.
 
