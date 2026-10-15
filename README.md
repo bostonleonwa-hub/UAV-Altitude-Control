@@ -77,9 +77,9 @@ Vertical velocity was estimated from the filter's two-state model, with **0.1112
 
 ## Documentation
 
-- [Mathematical Model](docs/mathematical-model.md) — force balance, hover thrust, actuator limits.
-- [Controller and Estimator](docs/controller-and-estimator.md) — PID and Kalman equations and configuration.
-- [Testing and Results](docs/testing-and-results.md) — measurement definitions, numerical results, and limitations.
+- [Mathematical Model](docs/Mathematical-Model.md) — force balance, hover thrust, actuator limits.
+- [Controller and Estimator](docs/Controller-and-Estimator.md) — PID and Kalman equations and configuration.
+- [Testing and Results](docs/Testing-and-Results.md) — measurement definitions, numerical results, and limitations.
 
 ## Repository structure
 
