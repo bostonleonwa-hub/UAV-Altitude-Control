@@ -1,57 +1,57 @@
 # UAV Altitude Control — Mathematical Model
 
-## System parameters
+## Model parameters
 
 | Parameter | Symbol | Value |
 |---|---|---|
-| Vehicle mass | $m$ | 1.5 kg |
-| Gravitational acceleration | $g$ | 9.81 m/s² |
-| Hover thrust | $T_{\mathrm{hover}}$ | 14.715 N |
-| Thrust limits | $T$ | 0–30 N |
-| Altitude command | $z_{\mathrm{ref}}$ | 10 m |
-| Wind disturbance | $F_w$ | −3 N, from 10–15 s |
-| Estimator sample period | $T_s$ | 0.01 s (100 Hz) |
+| Mass | $m$ | 1.5 kg |
+| Gravity | $g$ | 9.81 m/s² |
+| Nominal hover thrust | $T_{\mathrm{hover}}$ | 14.715 N |
+| Thrust saturation | $T$ | 0–30 N |
+| Altitude reference | $z_{\mathrm{ref}}$ | 10 m, step at 1 s |
+| Wind disturbance | $F_w$ | −3 N during 20–25 s |
+| Kalman sampling interval | $T_s$ | 0.01 s |
 
 ## Vertical dynamics
 
-The UAV is modeled as a one-dimensional vertical system. Newton's second law gives:
+The model treats upward altitude as positive. Newton's second law gives
 
 $$
-m\ddot{z} = T - mg + F_w
+m\ddot z=T-mg+F_w,
+\qquad \ddot z=\frac{T-mg+F_w}{m}.
 $$
 
-Therefore, vertical acceleration is:
+Simulink integrates acceleration to obtain vertical velocity and altitude:
 
 $$
-\ddot{z} = \frac{T - mg + F_w}{m}
+\dot v_z=\ddot z,\qquad \dot z=v_z.
 $$
 
-Two cascaded integrators in Simulink calculate vertical velocity and altitude from acceleration. The model assumes constant mass and gravity, and omits aerodynamic drag, attitude dynamics, motor response delays, and ground contact.
+## Hover feedforward and actuator saturation
 
-## Hover thrust and actuator limits
-
-At stationary hover without external disturbances:
+At stationary hover without disturbance:
 
 $$
-T_{\mathrm{hover}} = mg = (1.5)(9.81) = 14.715\ \mathrm{N}
+T_{\mathrm{hover}}=mg=(1.5)(9.81)=14.715\ \mathrm{N}.
 $$
 
-The controller commands hover thrust plus a feedback correction:
+The PID controller supplies a correction relative to hover thrust:
 
 $$
-T_{\mathrm{cmd}} = mg + u_{\mathrm{PID}}
+T_{\mathrm{cmd}}=mg+u_{\mathrm{PID}},\qquad
+T=\operatorname{sat}(T_{\mathrm{cmd}},0,30).
 $$
 
-The actuator limits applied thrust:
+The PID correction is constrained consistently with the thrust actuator, from $-14.715$ to $+15.285$ N.
 
-
-$$
-T = \mathrm{sat}(T_{\mathrm{cmd}}, 0, 30)
-$$
-  
-
-For a constant downward disturbance of $F_w=-3\ \mathrm{N}$, stationary hover requires:
+For $F_w=-3$ N, the equilibrium thrust during the disturbance is
 
 $$
-T_{\mathrm{hover,wind}} = mg-F_w = 17.715\ \mathrm{N}
+T_{\mathrm{hover,wind}}=mg-F_w=17.715\ \mathrm{N}.
 $$
+
+The −3 N force corresponds to a $-2$ m/s² acceleration contribution for a 1.5 kg vehicle **before feedback compensation**.
+
+## Scope
+
+The model assumes constant mass and gravity, one-dimensional vertical motion, and idealized actuator response subject to thrust limits. Attitude dynamics, aerodynamic drag, ground contact, and motor lag are not modeled.
