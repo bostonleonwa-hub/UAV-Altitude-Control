@@ -92,4 +92,4 @@ Here $u_k$ is modeled vertical acceleration from the known thrust correction, $w
 | Relative altitude RMSE reduction | 52.97% |
 | Kalman vertical velocity RMSE | 0.111240 m/s |
 
-See [Testing and Results](testing-and-results.md) for the definitions and flight-phase analysis.
+See [Testing and Results](Testing-and-Results.md) for the definitions and flight-phase analysis.
